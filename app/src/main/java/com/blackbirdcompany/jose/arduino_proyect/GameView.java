@@ -1,25 +1,17 @@
 package com.blackbirdcompany.jose.arduino_proyect;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by jose on 09/02/2017.
@@ -63,7 +55,6 @@ public class GameView extends SurfaceView {
         });
 
         ang = 30;
-        sumaAng = -1;
         bolAux=true;
 
         lineas = new float[RASTRO][2];
@@ -100,17 +91,15 @@ public class GameView extends SurfaceView {
 
         if(bolAux) {
             ang++;
-            sumaAng=-1;
         }else {
             ang--;
-            sumaAng=1;
         }
         if(ang>=150 || ang<=30)
             bolAux=!bolAux;
 
     }
 
-    int ang, sumaAng;
+    int ang;
     boolean bolAux;
 
     private void object(Canvas canvas,Paint pincel,float x, float y){
