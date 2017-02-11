@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+
 
 /**
  * Created by jose on 09/02/2017.
@@ -22,7 +24,10 @@ public class GameView extends SurfaceView {
     private SurfaceHolder holder;
     private GameLoopThread gameLoopThread;
     private int RADIO, EJEX, EJEY;
-    private static final int RASTRO = 20; //numero de lineas que habrá de rastro
+    private static final int RASTRO = 30; //numero de lineas que habrá de rastro
+    float lineas[][];
+    int degra[];
+    //ArrayList posiciones;
 
     public GameView(final Context context) {
         super(context);
@@ -57,9 +62,9 @@ public class GameView extends SurfaceView {
         ang = 30;
         bolAux=true;
 
-        lineas = new float[RASTRO][2];
+        lineas = new float[RASTRO][3];
         for(int i = 0; i<RASTRO; i++) {
-            for (int n = 0; n<2; n++){
+            for (int n = 0; n<3; n++){
                 lineas[i][n] = 0;
             }
         }
@@ -70,8 +75,13 @@ public class GameView extends SurfaceView {
             degra[i] = aux;
             aux -= resta;
         }
-
+        distancia = -1;
     }
+
+    //Variables para probar
+    float distancia;
+    int ang;
+    boolean bolAux;
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     protected void onDraw(Canvas canvas) {
 
@@ -87,7 +97,45 @@ public class GameView extends SurfaceView {
         //Dibuja las lineas del radar
         pincel.setStrokeWidth(8);
 
-        dibujaLinea(canvas, pincel, ang);
+        dibujaLinea(canvas, pincel, ang, distancia);
+
+        //simulacion de objeto
+        switch (ang){
+            case 50: distancia=300;break;
+            case 51: distancia=315;break;
+            case 52: distancia=330;break;
+            case 53: distancia=345;break;
+            case 54: distancia=360;break;
+            case 55: distancia=365;break;
+            case 56: distancia=367;break;
+            case 57: distancia=368;break;
+            case 58: distancia=367;break;
+            case 59: distancia=365;break;
+            case 60: distancia=360;break;
+            case 61: distancia=345;break;
+            case 62: distancia=330;break;
+            case 63: distancia=315;break;
+            case 64: distancia=565;break;
+            case 65: distancia=568;break;
+            case 66: distancia=572;break;
+            case 67: distancia=568;break;
+            case 68: distancia=565;break;
+            case 69: distancia=315;break;
+            case 70: distancia=330;break;
+            case 71: distancia=345;break;
+            case 72: distancia=360;break;
+            case 73: distancia=365;break;
+            case 74: distancia=367;break;
+            case 75: distancia=368;break;
+            case 76: distancia=367;break;
+            case 77: distancia=365;break;
+            case 78: distancia=360;break;
+            case 79: distancia=345;break;
+            case 80: distancia=330;break;
+            case 81: distancia=315;break;
+            case 82: distancia=300;break;
+            default: distancia=-1 ;break;
+        }
 
         if(bolAux) {
             ang++;
@@ -97,14 +145,6 @@ public class GameView extends SurfaceView {
         if(ang>=150 || ang<=30)
             bolAux=!bolAux;
 
-    }
-
-    int ang;
-    boolean bolAux;
-
-    private void object(Canvas canvas,Paint pincel,float x, float y){
-        pincel.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(x,y,50,pincel);
     }
 
     private void basePrincipal(Canvas canvas,Paint pincel){
@@ -150,35 +190,42 @@ public class GameView extends SurfaceView {
         canvas.drawTextOnPath("150º", trazado, (210-2)*aux,0, pincel);
     }
 
-    private void dibujaLinea(Canvas canvas, Paint pincel, int angulo){
-        float x = (float)((getWidth()/2)-(Math.cos(Math.toRadians(angulo))*(50 + RADIO)));
-        float y = (float)((getHeight())-(Math.sin(Math.toRadians(angulo))*(50 + RADIO)));
+    private void dibujaLinea(Canvas canvas, Paint pincel, int angulo, float distancia){
+        //Dibuja una linea, dibuja el rastro y la guarda en el array de lineas rastro
         pincel.setARGB(255, 255, 117, 20);
-        canvas.drawLine(EJEX, EJEY, x, y, pincel);
+        canvas.drawLine(EJEX, EJEY, (float)((getWidth()/2)-(Math.cos(Math.toRadians(angulo))*(50 + RADIO))), (float)((getHeight())-(Math.sin(Math.toRadians(angulo))*(50 + RADIO))), pincel);
         dibujaRastro(canvas, pincel);
-        guardaLinea(x, y);
+        guardaLinea(angulo, distancia);
     }
 
-    float lineas[][];
-    int degra[];
-    private void guardaLinea(float x, float y){
-        //Mueve los objetos del array una posicion hacia el final y guarda la nueva linea en la posicion 0
+
+    private void guardaLinea(int angulo, float distancia){
+        //Mueve los objetos del array una posicion hacia el final y guarda la nueva linea en la posicion 0. Y guarda la distancia del objeto detectado (-1 si no hay)
         for(int i = RASTRO-1; i>0; i--) {
                 lineas[i][0] = lineas[i-1][0];
                 lineas[i][1] = lineas[i-1][1];
         }
-        lineas[0][0]=x;
-        lineas[0][1]=y;
+        lineas[0][0]=angulo;
+        lineas[0][1]=distancia;
     }
 
     private void dibujaRastro(Canvas canvas, Paint pincel){
-        //Dibuja todas las lineas guardadas en el array de lineas
+        //Dibuja todas las lineas guardadas en el array de lineas. Si se detectó un objeto (distancia>0) lo dibuja en rojo
         for(int i = 0; i<RASTRO; i++) {
             if (lineas[i][0] != 0) {
                 pincel.setARGB(degra[i], 255, 117, 20);
-                canvas.drawLine(EJEX, EJEY, lineas[i][0], lineas[i][1], pincel);
+                canvas.drawLine(EJEX, EJEY, (float)((getWidth()/2)-(Math.cos(Math.toRadians(lineas[i][0]))*(50 + RADIO))), (float)((getHeight())-(Math.sin(Math.toRadians(lineas[i][0]))*(50 + RADIO))), pincel);
+
+                if(lineas[i][1]>0)
+                    dibujaLineaOb(canvas, pincel, lineas[i][0], lineas[i][1], degra[i]);
             }
 
         }
+    }
+
+    private void dibujaLineaOb(Canvas canvas, Paint pincel, float angulo, float distancia, int degra){
+        //Dibuja una linea desde en el angulo indicado desde la distancia indicada hasta el final
+        pincel.setARGB(degra, 255, 0 ,0);
+        canvas.drawLine((float)((getWidth()/2)-(Math.cos(Math.toRadians(angulo))*(distancia))), (float)((getHeight())-(Math.sin(Math.toRadians(angulo))*(distancia))), (float)((getWidth()/2)-(Math.cos(Math.toRadians(angulo))*(50 + RADIO))), (float)((getHeight())-(Math.sin(Math.toRadians(angulo))*(50 + RADIO))),pincel);
     }
 }
